@@ -2532,7 +2532,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 442f6d8c7522fe34badb9924a8bf4a6a, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  rectTransform: {fileID: 0}
+  hp: 100
+  stunned: 0
+  dead: 0
   baseSpeed: 5
   runningAmplifier: 2
   lockCursor: 1

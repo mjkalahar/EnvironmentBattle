@@ -18,6 +18,7 @@ public class GameManager : MonoBehaviour
     public Resource resourcePrefab3;
     public Resource resourcePrefab4;
     public EnemyController enemyOnePrefab;
+    public EnemyController enemyTwoPrefab;
 
     public HUD hud;
 
@@ -47,6 +48,9 @@ public class GameManager : MonoBehaviour
         running = true;
         PlayerManager.Instance.GetPlayer().transform.position = PLAYER_SPAWN_POS;
         PlayerManager.Instance.GetPlayer().Respawn();
+        GameManager.GetHUD().HideRoundCompleted();
+        GameManager.GetHUD().HideGameOver();
+        GameManager.GetHUD().HideNextWave();
         SpawnResources();
         StartWave();
     }
@@ -63,7 +67,7 @@ public class GameManager : MonoBehaviour
 
         for (int i = 0; i < numResources; i++)
         {
-            Vector3 pos = RandomCircle(center, 10.0f, (float)360.0 / numResources * i);
+            Vector3 pos = RandomCircle(center, 15.0f, (float)360.0 / numResources * i);
             //Quaternion rot = Quaternion.FromToRotation(Vector3.forward, center - pos);
             Quaternion rot = new Quaternion();
             rot.SetLookRotation(center - pos, Vector3.up);
@@ -99,6 +103,9 @@ public class GameManager : MonoBehaviour
     void EndGame()
     {
         running = false;
+        GameManager.GetHUD().ShowGameOver();
+        GameManager.GetHUD().UpdateRoundsComplete(round-1);
+        GameManager.GetHUD().ShowRoundsComplete();
         StunAllCharacters();
     }
 
@@ -107,15 +114,25 @@ public class GameManager : MonoBehaviour
         roundPause = false;
         UnstunPlayerAndResources();
         round++;
-
+        GameManager.GetHUD().HideNextWave();
+        GameManager.GetHUD().HideRoundCompleted();
         for (int i = 0; i < round; i++)
         {
-            Instantiate(enemyOnePrefab, ENEMY_ONE_SPAWN_POS, Quaternion.identity);
+            if (i % 2 == 0)
+            {
+                Instantiate(enemyTwoPrefab, ENEMY_ONE_SPAWN_POS, Quaternion.identity);
+            }
+            else
+            {
+                Instantiate(enemyOnePrefab, ENEMY_ONE_SPAWN_POS, Quaternion.identity);
+            }
         }
     }
 
     public void EndWave()
     {
+        GameManager.GetHUD().ShowRoundCompleted();
+        GameManager.GetHUD().ShowNextWave();
         roundPause = true;
         pauseTimer = 0;
         WipeDeadEnemies();
@@ -172,8 +189,15 @@ public class GameManager : MonoBehaviour
             }
         }
 
-        var ran = Random.Range(0, livingResources.Count);
-        return livingResources.ToArray()[ran];
+        if (livingResources.Count > 0)
+        {
+            var ran = Random.Range(0, livingResources.Count);
+            return livingResources.ToArray()[ran];
+        }
+        else
+        {
+            return null;
+        }
     }
 
     public List<Resource> GetAliveResources()
@@ -241,7 +265,7 @@ public class GameManager : MonoBehaviour
 
             if (roundPause)
             {
-                Debug.Log("Time left: " + (int)(timeBetweenWaves - pauseTimer));
+                GetHUD().UpdateNextWave(timeBetweenWaves - pauseTimer);
                 pauseTimer += Time.deltaTime;
                 if (pauseTimer >= timeBetweenWaves)
                 {

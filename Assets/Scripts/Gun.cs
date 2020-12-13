@@ -12,6 +12,10 @@ public class Gun : MonoBehaviour
     public float damage = 5.3f;
     public float timePerShot = .2f;
 
+    public float xOffset = .1f;
+    public float yOffset = .1f;
+    public float zOffset = .5f;
+
     void Start()
     {
         nextTimeToFire = 0.0f;
@@ -19,11 +23,17 @@ public class Gun : MonoBehaviour
 
     void Update()
     {
+        Player player = PlayerManager.Instance.GetPlayer();
+        Vector3 gripPos = player.GetRightHandGripPostion();
+        Vector3 gunPos = new Vector3(gripPos.x + xOffset, gripPos.y + yOffset, gripPos.z + zOffset);
+        transform.position = gunPos;
+        transform.rotation = player.transform.rotation;
         bool ready = Time.time >= nextTimeToFire;
         if(ready && Input.GetButton("Fire1"))
         {
             Shoot();
         }
+
     }
 
     public float GetDamage()

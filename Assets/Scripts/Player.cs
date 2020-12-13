@@ -42,6 +42,13 @@ public class Player : Character
         airTime = 0;
     }
 
+    public Vector3 GetRightHandGripPostion()
+    {
+        var thumb = gameObject.transform.Find("mixamorig:Hips/mixamorig:Spine/mixamorig:Spine1/mixamorig:Spine2/" +
+            "mixamorig:RightShoulder/mixamorig:RightArm/mixamorig:RightForeArm/mixamorig:RightHand/mixamorig:RightHandThumb1/mixamorig:RightHandThumb2");
+        return thumb.transform.position;
+    }
+
     public Camera GetPlayerCamera()
     {
         return playerCamera;

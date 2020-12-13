@@ -54,7 +54,10 @@ public class EnemyController : Target
             if (currResourceTarget == null || currResourceTarget.isDead())
             {
                 Resource resource = GameManager.Instance.GetRandomAliveResource();
-                currResourceTarget = resource;
+                if (resource != null)
+                {
+                    currResourceTarget = resource;
+                }
             }
 
             //set our target as resource target
@@ -89,12 +92,20 @@ public class EnemyController : Target
             //Movement
             if (targetDistance <= agent.stoppingDistance)
             {
-                //animator.SetFloat("forward", 0.0f);
+                agent.isStopped = true;
+                agent.ResetPath();
+                if (animator != null && gameObject.activeSelf)
+                {
+                    animator.SetFloat("forward", 0.0f);
+                }
             }
             else
             {
+                if (animator != null && animator.gameObject.activeSelf)
+                {
+                    animator.SetFloat("forward", 1.0f);
+                }
                 agent.SetDestination(target.transform.position);
-                //animator.SetFloat("forward", 1.0f);
             }
 
             //Casting
@@ -121,9 +132,12 @@ public class EnemyController : Target
         }
         else
         {
+            if (animator != null && gameObject.activeSelf)
+            {
+                animator.SetFloat("forward", 0.0f);
+            }
             agent.isStopped = true;
             agent.ResetPath();
-            //animator.SetFloat("forward", 0.0f);
         }
 
         //Update health bars
