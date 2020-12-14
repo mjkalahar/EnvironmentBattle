@@ -8,25 +8,30 @@ public class GameManager : MonoBehaviour
     float currentTime;
 
     float pauseTimer;
+    float warmupTimer;
 
     bool running = false;
     bool roundPause = false;
 
     public int timeBetweenWaves = 30;
+    public int warmupTime = 10;
+
     public Resource resourcePrefab1;
     public Resource resourcePrefab2;
     public Resource resourcePrefab3;
     public Resource resourcePrefab4;
     public EnemyController enemyOnePrefab;
     public EnemyController enemyTwoPrefab;
+    public EnemyController enemyThreePrefab;
 
     public HUD hud;
 
     private int resourceCount = 10;
 
-    public Vector3 PLAYER_SPAWN_POS = new Vector3(32, 0, 32);
-    public Vector3 RESOURCE_CENTER_SPAWN_POS = new Vector3(32, 0, 32);
-    public Vector3 ENEMY_ONE_SPAWN_POS = new Vector3(-27, 1, -26);
+    public GameObject PLAYER_SPAWN_POS;
+    public GameObject RESOURCE_CENTER_SPAWN_POS;
+    public GameObject SPAWN_POINT1;
+    public GameObject SPAWN_POINT2;
 
     public static GameManager Instance;
     void Awake()
@@ -37,7 +42,13 @@ public class GameManager : MonoBehaviour
     // Start is called before the first frame update
     void Start()
     {
-        StartGame();
+        StunAllCharacters();
+        roundPause = true;
+        round = 0;
+        running = true;
+        PlayerManager.Instance.GetPlayer().transform.position = PLAYER_SPAWN_POS.transform.position;
+        PlayerManager.Instance.GetPlayer().Respawn();
+        GetHUD().ShowStarting();
     }
 
     void StartGame()
@@ -46,11 +57,11 @@ public class GameManager : MonoBehaviour
         //Will increment to be round 1 as soon as game starts first wave
         round = 0;
         running = true;
-        PlayerManager.Instance.GetPlayer().transform.position = PLAYER_SPAWN_POS;
+        PlayerManager.Instance.GetPlayer().transform.position = PLAYER_SPAWN_POS.transform.position;
         PlayerManager.Instance.GetPlayer().Respawn();
-        GameManager.GetHUD().HideRoundCompleted();
-        GameManager.GetHUD().HideGameOver();
-        GameManager.GetHUD().HideNextWave();
+        GetHUD().HideRoundCompleted();
+        GetHUD().HideGameOver();
+        GetHUD().HideNextWave();
         SpawnResources();
         StartWave();
     }
@@ -62,7 +73,7 @@ public class GameManager : MonoBehaviour
 
     void SpawnResources()
     {
-        Vector3 center = RESOURCE_CENTER_SPAWN_POS;
+        Vector3 center = RESOURCE_CENTER_SPAWN_POS.transform.position;
         int numResources = resourceCount;
 
         for (int i = 0; i < numResources; i++)
@@ -103,9 +114,9 @@ public class GameManager : MonoBehaviour
     void EndGame()
     {
         running = false;
-        GameManager.GetHUD().ShowGameOver();
-        GameManager.GetHUD().UpdateRoundsComplete(round-1);
-        GameManager.GetHUD().ShowRoundsComplete();
+        GetHUD().ShowGameOver();
+        GetHUD().UpdateRoundsComplete(round-1);
+        GetHUD().ShowRoundsComplete();
         StunAllCharacters();
     }
 
@@ -114,19 +125,39 @@ public class GameManager : MonoBehaviour
         roundPause = false;
         UnstunPlayerAndResources();
         round++;
-        GameManager.GetHUD().HideNextWave();
-        GameManager.GetHUD().HideRoundCompleted();
+        GetHUD().HideNextWave();
+        GetHUD().HideRoundCompleted();
+        GetHUD().HideStarting();
         for (int i = 0; i < round; i++)
         {
-            if (i % 2 == 0)
+            if(i % 3 == 0)
             {
-                Instantiate(enemyTwoPrefab, ENEMY_ONE_SPAWN_POS, Quaternion.identity);
+                SpawnEnemy(enemyThreePrefab);
+            }
+            else if (i % 2 == 0)
+            {
+                SpawnEnemy(enemyTwoPrefab);
             }
             else
             {
-                Instantiate(enemyOnePrefab, ENEMY_ONE_SPAWN_POS, Quaternion.identity);
+                SpawnEnemy(enemyOnePrefab);
             }
         }
+    }
+
+    public void SpawnEnemy(EnemyController enemy)
+    {
+        Instantiate(enemy, RandomEnemyAreaSpawn(), Quaternion.identity);
+    }
+
+    public Vector3 RandomEnemyAreaSpawn()
+    {
+        Vector3 spawn1 = SPAWN_POINT1.transform.position;
+        Vector3 spawn2 = SPAWN_POINT2.transform.position;
+
+
+        Vector3 spawn = new Vector3(Random.Range(spawn1.x, spawn2.x), 0, Random.Range(spawn1.z, spawn2.z));
+        return spawn;
     }
 
     public void EndWave()
@@ -259,17 +290,33 @@ public class GameManager : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
+
         if (running)
         {
+            float currentWait = 0;
             currentTime += Time.deltaTime;
-
+            
             if (roundPause)
             {
-                GetHUD().UpdateNextWave(timeBetweenWaves - pauseTimer);
-                pauseTimer += Time.deltaTime;
-                if (pauseTimer >= timeBetweenWaves)
+                if (round > 0)
                 {
-                    StartWave();
+                    pauseTimer += Time.deltaTime;
+                    currentWait = timeBetweenWaves - pauseTimer;
+                    GetHUD().UpdateNextWave(timeBetweenWaves - pauseTimer);
+                    if (pauseTimer >= timeBetweenWaves)
+                    {
+                        StartWave();
+                    }
+                }
+                else
+                {
+                    warmupTimer += Time.deltaTime;
+                    currentWait = warmupTime - warmupTimer;
+                    GetHUD().UpdateStarting(warmupTime - warmupTimer);
+                    if (warmupTimer >= warmupTime)
+                    {
+                        StartGame();
+                    }
                 }
             }
             else
@@ -291,9 +338,9 @@ public class GameManager : MonoBehaviour
                     Debug.Log("Player Died");
                     EndGame();
                 }
-
-                //ConvertDeadTreesToStumps();
             }
+
+            GetHUD().UpdateCountdown(currentWait);
         }
     }
 }

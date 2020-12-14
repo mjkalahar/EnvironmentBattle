@@ -5,7 +5,7 @@ using UnityEngine.AI;
 
 public class EnemyController : Target
 {
-    public float lookRadius = 8f;
+    public float aggroRadius = 8f;
 
     public float difficultyScore = 10;
 
@@ -13,7 +13,7 @@ public class EnemyController : Target
 
     public float secondsForDamage = 2;
 
-    public float range = 10f;
+    public float damageRange = 10f;
 
     bool casting = false;
 
@@ -25,11 +25,39 @@ public class EnemyController : Target
     NavMeshAgent agent;
     AudioSource groan;
     Animator animator;
-   
+
+    GameObject attackBar;
+    GameObject attackForeground;
+    RectTransform rectTransformAttack;
+
+    public void SetupAttackBar()
+    {
+        attackBar = transform.Find("StatusBars/AttackBar").gameObject;
+        attackForeground = GetAttackBar().transform.Find("Foreground").gameObject;
+        rectTransformAttack = attackForeground.GetComponent<RectTransform>();
+    }
+
+    public float GetAttackPercent()
+    {
+        return (float)currDamageTimer / (float)secondsForDamage * 100;
+    }
+
+
+    public void UpdateAttackBar()
+    {
+        rectTransformAttack.sizeDelta = new Vector2(GetAttackPercent() * 2, rectTransformAttack.sizeDelta.y);
+        GetAttackBar().transform.LookAt(PlayerManager.Instance.GetPlayer().GetPlayerCamera().transform);
+    }
+
+    public GameObject GetAttackBar()
+    {
+        return attackBar;
+    }
 
     void Start()
     {
         SetupHealthBar();
+        SetupAttackBar();
         agent = GetComponent<NavMeshAgent>();
         groan = GetComponent<AudioSource>();
         animator = GetComponent<Animator>();       
@@ -42,7 +70,7 @@ public class EnemyController : Target
         float playerDistance = Vector3.Distance(player.transform.position, transform.position);
 
         //If play is within distance, they are the target
-        if (playerDistance <= lookRadius)
+        if (playerDistance <= aggroRadius)
         {
             previousTarget = target;
             target = player;
@@ -109,14 +137,13 @@ public class EnemyController : Target
             }
 
             //Casting
-            if(targetDistance <= range)
+            if(targetDistance <= damageRange)
             {
                 if (casting == true)
                 {
                     currDamageTimer += Time.deltaTime;
                     if (currDamageTimer >= secondsForDamage)
                     {
-                        //Debug.Log("Send Damage!");
                         ShootAnimationPlay();
                         target.TakeDamage(damage, this.gameObject);
                         currDamageTimer = 0.0f;
@@ -142,6 +169,7 @@ public class EnemyController : Target
 
         //Update health bars
         UpdateHealthBar();
+        UpdateAttackBar();
     }
 
     void PlaySound()
@@ -162,7 +190,7 @@ public class EnemyController : Target
     void OnDrawGizmosSelected()
     {
         Gizmos.color = Color.red;
-        Gizmos.DrawWireSphere(transform.position, lookRadius);
+        Gizmos.DrawWireSphere(transform.position, aggroRadius);
         if(target != null)
             Gizmos.DrawLine(transform.position, target.transform.position);
     }
@@ -174,7 +202,6 @@ public class EnemyController : Target
 
     public override void Process(RaycastHit hit)
     {
-        Debug.Log("Enemy take damage: " + PlayerManager.Instance.GetCurrentGun().GetDamage());
         TakeDamage(PlayerManager.Instance.GetCurrentGun().GetDamage(), PlayerManager.Instance.GetPlayer().gameObject);
         effectScript.Play(hit, hitSound, hitEffect, effectDuration);
     }

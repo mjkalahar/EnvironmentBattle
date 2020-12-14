@@ -14,21 +14,20 @@ public class Character : MonoBehaviour
     float curDuration;
 
     GameObject healthBar;
-    GameObject foreground;
-    RectTransform rectTransform;
+    GameObject healthForeground;
+    RectTransform rectTransformHealth;
     
     public void SetupHealthBar()
     {
-        healthBar = transform.Find("HealthBar").gameObject;
-        foreground = GetHealthBar().transform.Find("Foreground").gameObject;
-        rectTransform = foreground.GetComponent<RectTransform>();
+        healthBar = transform.Find("StatusBars/HealthBar").gameObject;
+        healthForeground = GetHealthBar().transform.Find("Foreground").gameObject;
+        rectTransformHealth = healthForeground.GetComponent<RectTransform>();
     }
 
     public void UpdateHealthBar()
     {
-        rectTransform.sizeDelta = new Vector2(GetHP() * 2, rectTransform.sizeDelta.y);
-        GameObject healthBar = GetHealthBar();
-        healthBar.transform.LookAt(PlayerManager.Instance.GetPlayer().GetPlayerCamera().transform);
+        rectTransformHealth.sizeDelta = new Vector2(GetHPPercent() * 2, rectTransformHealth.sizeDelta.y);
+        GetHealthBar().transform.LookAt(PlayerManager.Instance.GetPlayer().GetPlayerCamera().transform);
     }
 
     // Update is called once per frame
@@ -51,9 +50,9 @@ public class Character : MonoBehaviour
         return hp;
     }
 
-    public double GetHPPercent()
+    public float GetHPPercent()
     {
-        return (double)hp/(double)hpMax;
+        return (float)hp/(float)hpMax * 100;
     }
 
     public GameObject GetHealthBar()
@@ -79,7 +78,6 @@ public class Character : MonoBehaviour
     public void TakeDamage(float damage, GameObject source)
     {
         hp -= damage;
-        //Debug.Log("Took damage " + damage + " from " + source);
         if (hp <= 0)
         {
             hp = 0;
@@ -104,17 +102,5 @@ public class Character : MonoBehaviour
     public void Unstun()
     {
         stunned = false;
-    }
-
-    public void ProcessStun()
-    {
-        if (isStunned())
-        {
-            curDuration += Time.deltaTime;
-            if (curDuration >= stunDuration)
-            {
-                Debug.Log("No longer stunned!");
-            }
-        }
     }
 }
