@@ -4,7 +4,7 @@ using UnityEngine;
 
 public class Character : MonoBehaviour
 {
-    private float hpMax = 100.0f;
+    protected float hpMax = 100.0f;
     public float hp = 100.0f;
 
     public bool stunned;
@@ -38,16 +38,6 @@ public class Character : MonoBehaviour
 
     public virtual void Die()
     {
-    }
-
-    public float GetHPMax()
-    {
-        return hpMax;
-    }
-
-    public float GetHP()
-    {
-        return hp;
     }
 
     public float GetHPPercent()

@@ -8,32 +8,16 @@ public class Gun : MonoBehaviour
 
     public ParticleSystem muzzleFlash;
     private float nextTimeToFire;
+    private float lastFire;
 
     public float damage = 5.3f;
     public float timePerShot = .2f;
 
-    public float xOffset = .1f;
-    public float yOffset = .1f;
-    public float zOffset = .5f;
 
     void Start()
     {
         nextTimeToFire = 0.0f;
-    }
-
-    void Update()
-    {
-        Player player = PlayerManager.Instance.GetPlayer();
-        Vector3 gripPos = player.GetRightHandGripPostion();
-        Vector3 gunPos = new Vector3(gripPos.x + xOffset, gripPos.y + yOffset, gripPos.z + zOffset);
-        transform.position = gunPos;
-        transform.rotation = player.transform.rotation;
-        bool ready = Time.time >= nextTimeToFire;
-        if(ready && Input.GetButton("Fire1") && !player.isStunned() && !player.isDead())
-        {
-            Shoot();
-        }
-
+        lastFire = 0.0f;
     }
 
     public float GetDamage()
@@ -41,7 +25,22 @@ public class Gun : MonoBehaviour
         return damage;
     }
 
-    void Shoot()
+    public bool CanFire()
+    {
+        return Time.time >= nextTimeToFire;
+    }
+
+    public float GetCooldownTime()
+    {
+        float howLong = Time.time - lastFire;
+        if(howLong > timePerShot)
+        {
+            howLong = timePerShot;
+        }
+        return (howLong / timePerShot) * 100;
+    }
+
+    public void Shoot()
     {
         if(muzzleFlash != null)
         {
@@ -65,7 +64,7 @@ public class Gun : MonoBehaviour
 
 
         // Now we know what to aim at, fire from the muzzle
-        Vector3 muzzlePosition = gameObject.transform.Find("Muzzle").transform.position;
+        Vector3 muzzlePosition = gameObject.transform.Find("Gun/Muzzle").transform.position;
         Ray beam = new Ray(muzzlePosition, aimPoint - muzzlePosition);
         if (Physics.Raycast(beam, out hit, range))
         {
@@ -75,6 +74,7 @@ public class Gun : MonoBehaviour
                 if (target != null)
                 {
                     target.Process(hit);
+                    lastFire = Time.time;
                     nextTimeToFire = Time.time + timePerShot;
                 }
             }
