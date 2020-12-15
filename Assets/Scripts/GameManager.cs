@@ -4,7 +4,7 @@ using UnityEngine;
 
 public class GameManager : MonoBehaviour
 {
-    int round;
+    public int round;
     float currentTime;
 
     float pauseTimer;
@@ -23,6 +23,9 @@ public class GameManager : MonoBehaviour
     public EnemyController enemyOnePrefab;
     public EnemyController enemyTwoPrefab;
     public EnemyController enemyThreePrefab;
+    public EnemyController enemyOneBossPrefab;
+    public EnemyController enemyTwoBossPrefab;
+    public EnemyController enemyThreeBossPrefab;
 
     public HUD hud;
 
@@ -49,6 +52,7 @@ public class GameManager : MonoBehaviour
         PlayerManager.Instance.GetPlayer().transform.position = PLAYER_SPAWN_POS.transform.position;
         PlayerManager.Instance.GetPlayer().Respawn();
         GetHUD().ShowStarting();
+        SpawnResources();
     }
 
     void StartGame()
@@ -62,7 +66,6 @@ public class GameManager : MonoBehaviour
         GetHUD().HideRoundCompleted();
         GetHUD().HideGameOver();
         GetHUD().HideNextWave();
-        SpawnResources();
         StartWave();
     }
 
@@ -128,19 +131,44 @@ public class GameManager : MonoBehaviour
         GetHUD().HideNextWave();
         GetHUD().HideRoundCompleted();
         GetHUD().HideStarting();
-        for (int i = 0; i < round; i++)
+        SpawnCurrentWave();
+    }
+
+    public void SpawnCurrentWave()
+    {
+        float score = round;
+
+        while (score > 0)
         {
-            if(i % 3 == 0)
+            if (score >= enemyThreeBossPrefab.GetDifficultyScore())
+            {
+                SpawnEnemy(enemyThreeBossPrefab);
+                score -= enemyThreeBossPrefab.GetDifficultyScore();
+            }
+            else if (score >= enemyTwoBossPrefab.GetDifficultyScore())
+            {
+                SpawnEnemy(enemyTwoBossPrefab);
+                score -= enemyTwoBossPrefab.GetDifficultyScore();
+            }
+            else if (score >= enemyOneBossPrefab.GetDifficultyScore())
+            {
+                SpawnEnemy(enemyOneBossPrefab);
+                score -= enemyOneBossPrefab.GetDifficultyScore();
+            }
+            else if (score >= enemyThreePrefab.GetDifficultyScore())
             {
                 SpawnEnemy(enemyThreePrefab);
+                score -= enemyThreePrefab.GetDifficultyScore();
             }
-            else if (i % 2 == 0)
+            else if (score >= enemyTwoPrefab.GetDifficultyScore())
             {
                 SpawnEnemy(enemyTwoPrefab);
+                score -= enemyTwoPrefab.GetDifficultyScore();
             }
-            else
+            else if (score >= enemyOnePrefab.GetDifficultyScore())
             {
                 SpawnEnemy(enemyOnePrefab);
+                score -= enemyOnePrefab.GetDifficultyScore();
             }
         }
     }

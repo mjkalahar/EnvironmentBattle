@@ -21,6 +21,8 @@ public class PlayerManager : MonoBehaviour
     public Gun gun2;
     public Gun gun3;
 
+    private bool hideGun = false;
+
     public void Start()
     {
         SwitchWeapons(gun1);
@@ -43,7 +45,25 @@ public class PlayerManager : MonoBehaviour
 
     public void Update()
     {
-        if (GetCurrentGun().CanFire() && Input.GetButton("Fire1") && !GetPlayer().isStunned() && !GetPlayer().isDead())
+
+        if(Input.GetKey(KeyCode.LeftShift))
+        {
+            if (!GetPlayer().isSprinting())
+            {
+                GetPlayer().Sprint();
+                HideGun();
+            }
+        }
+        else
+        {
+            if(GetPlayer().isSprinting())
+            {
+                GetPlayer().StopSprint();
+                UnhideGun();
+            }
+        }
+
+        if (GetCurrentGun().CanFire() && Input.GetButton("Fire1") && !GetPlayer().isStunned() && !GetPlayer().isDead() & !GetPlayer().isSprinting())
         {
             GetCurrentGun().Shoot();
         }
@@ -62,6 +82,17 @@ public class PlayerManager : MonoBehaviour
         {
             SwitchWeapons(gun3);
         }
+
+    }
+
+    public void HideGun()
+    {
+        hideGun = true;
+    }
+
+    public void UnhideGun()
+    {
+        hideGun = false;
     }
 
     public void SwitchWeapons(Gun newGun)
@@ -72,8 +103,12 @@ public class PlayerManager : MonoBehaviour
             {
                 Destroy(GetCurrentGun().gameObject);
             }
-            currentGun = SpawnWeapon(newGun);
-            currentGunPrefab = newGun;
+
+            if (newGun != null)
+            {
+                currentGun = SpawnWeapon(newGun);
+                currentGunPrefab = newGun;
+            }
         }
     }
 
@@ -84,10 +119,18 @@ public class PlayerManager : MonoBehaviour
 
     public void UpdateCurrentGun()
     {
-        Vector3 gripPos = GetPlayer().GetRightHandGripPostion();
-        Vector3 gunPos = new Vector3(gripPos.x, gripPos.y, gripPos.z);
-        GetCurrentGun().transform.rotation = GetPlayer().transform.rotation;
-        GetCurrentGun().transform.position = gunPos;
+        if (GetCurrentGun() != null)
+        {
+            Vector3 gripPos = GetPlayer().GetRightHandGripPostion();
+            Vector3 gunPos = new Vector3(gripPos.x, gripPos.y, gripPos.z);
+            GetCurrentGun().transform.rotation = GetPlayer().transform.rotation;
+            GetCurrentGun().transform.position = gunPos;
+        }
+
+        if(hideGun)
+        {
+            GetCurrentGun().transform.position = OFFSCREEN_SPAWN_POINT.transform.position;
+        }
     }
 
 }

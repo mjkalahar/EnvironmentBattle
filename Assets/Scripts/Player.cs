@@ -20,6 +20,9 @@ public class Player : Character
     Camera playerCamera;
 
     RectTransform hudRectTransform;
+    RectTransform hudRectTransformReload;
+
+    private bool sprinting = false;
 
 
     void Start()
@@ -57,13 +60,31 @@ public class Player : Character
     public void SetupHUDBar()
     {
         HUD hud = GameManager.GetHUD();
-        var foreground = hud.transform.Find("Canvas").transform.Find("HealthBar").transform.Find("Foreground");
+        var foreground = hud.transform.Find("Canvas").transform.Find("StatusBars/HealthBar").transform.Find("Foreground");
         hudRectTransform = foreground.GetComponent<RectTransform>();
+        var foregroundReload = hud.transform.Find("Canvas").transform.Find("StatusBars/AttackBar").transform.Find("Foreground");
+        hudRectTransformReload = foregroundReload.GetComponent<RectTransform>();
     }
 
     public void UpdateHUDBar()
     {
-        hudRectTransform.sizeDelta = new Vector2(GetHP() * 2, hudRectTransform.sizeDelta.y);
+        hudRectTransform.sizeDelta = new Vector2(GetHPPercent() * 2, hudRectTransform.sizeDelta.y);
+        hudRectTransformReload.sizeDelta = new Vector2(PlayerManager.Instance.GetCurrentGun().GetCooldownTime() * 2, hudRectTransformReload.sizeDelta.y);
+    }
+
+    public bool isSprinting()
+    {
+        return sprinting;
+    }
+
+    public void Sprint()
+    {
+        sprinting = true;
+    }
+
+    public void StopSprint()
+    {
+        sprinting = false;
     }
 
     public override void Update()
@@ -76,19 +97,22 @@ public class Player : Character
             playerMovement.movingForwards = playerMovement.forwardAndBackward > 0.0f;
             playerMovement.movingBackwards = playerMovement.forwardAndBackward < 0.0f;
 
-            bool running = (playerMovement.movingForwards && Input.GetKey(KeyCode.LeftShift))
-                           || (!playerMovement.movingBackwards
-                               &&
-                               (playerMovement.leftAndRight > 0.0f || playerMovement.leftAndRight < 0.0f)
-                            );
+            bool running = isSprinting() && (
+                    playerMovement.movingForwards
+                 || (!playerMovement.movingBackwards && (playerMovement.leftAndRight > 0.0f || playerMovement.leftAndRight < 0.0f))
+            );
+
             if (running)
             {
                 playerMovement.speed = playerMovement.baseSpeed * playerMovement.runningAmplifier;
+                animator.SetFloat("sprint", 1.0f);
+
             }
             else
             {
                 playerMovement.speed = playerMovement.baseSpeed;
                 playerMovement.forwardAndBackward = playerMovement.forwardAndBackward / 2.0f;
+                animator.SetFloat("sprint", 0.0f);
             }
 
           

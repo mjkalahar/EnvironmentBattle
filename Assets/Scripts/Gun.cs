@@ -8,13 +8,16 @@ public class Gun : MonoBehaviour
 
     public ParticleSystem muzzleFlash;
     private float nextTimeToFire;
+    private float lastFire;
 
     public float damage = 5.3f;
     public float timePerShot = .2f;
 
+
     void Start()
     {
         nextTimeToFire = 0.0f;
+        lastFire = 0.0f;
     }
 
     public float GetDamage()
@@ -25,6 +28,16 @@ public class Gun : MonoBehaviour
     public bool CanFire()
     {
         return Time.time >= nextTimeToFire;
+    }
+
+    public float GetCooldownTime()
+    {
+        float howLong = Time.time - lastFire;
+        if(howLong > timePerShot)
+        {
+            howLong = timePerShot;
+        }
+        return (howLong / timePerShot) * 100;
     }
 
     public void Shoot()
@@ -61,6 +74,7 @@ public class Gun : MonoBehaviour
                 if (target != null)
                 {
                     target.Process(hit);
+                    lastFire = Time.time;
                     nextTimeToFire = Time.time + timePerShot;
                 }
             }

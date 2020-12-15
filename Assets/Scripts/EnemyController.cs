@@ -22,8 +22,8 @@ public class EnemyController : Target
     Resource currResourceTarget;
     Character previousTarget;
     Character target;
-    NavMeshAgent agent;
-    AudioSource groan;
+    protected NavMeshAgent agent;
+    protected AudioSource audioSource;
     Animator animator;
 
     GameObject attackBar;
@@ -59,9 +59,10 @@ public class EnemyController : Target
         SetupHealthBar();
         SetupAttackBar();
         agent = GetComponent<NavMeshAgent>();
-        groan = GetComponent<AudioSource>();
+        audioSource = GetComponent<AudioSource>();
         animator = GetComponent<Animator>();       
         transform.rotation = Random.rotation;
+        hpMax = hp;
     }
 
     bool ChangeTarget()
@@ -118,22 +119,29 @@ public class EnemyController : Target
             float targetDistance = Vector3.Distance(target.transform.position, transform.position);
 
             //Movement
-            if (targetDistance <= agent.stoppingDistance)
+            if (agent != null)
             {
-                agent.isStopped = true;
-                agent.ResetPath();
-                if (animator != null && gameObject.activeSelf)
+                if (targetDistance <= agent.stoppingDistance)
                 {
-                    animator.SetFloat("forward", 0.0f);
+                    agent.isStopped = true;
+                    agent.ResetPath();
+                    if (animator != null && gameObject.activeSelf)
+                    {
+                        animator.SetFloat("forward", 0.0f);
+                    }
+                }
+                else
+                {
+                    if (animator != null && animator.gameObject.activeSelf)
+                    {
+                        animator.SetFloat("forward", 1.0f);
+                    }
+                    agent.SetDestination(target.transform.position);
                 }
             }
             else
             {
-                if (animator != null && animator.gameObject.activeSelf)
-                {
-                    animator.SetFloat("forward", 1.0f);
-                }
-                agent.SetDestination(target.transform.position);
+                Debug.Log("Null nav mesh agent");
             }
 
             //Casting
@@ -144,15 +152,34 @@ public class EnemyController : Target
                     currDamageTimer += Time.deltaTime;
                     if (currDamageTimer >= secondsForDamage)
                     {
-                        ShootAnimationPlay();
+                        if (animator != null && animator.gameObject.activeSelf)
+                        {
+                            animator.SetFloat("attack", 0.0f);
+                        }
                         target.TakeDamage(damage, this.gameObject);
                         currDamageTimer = 0.0f;
                     }
+                    else
+                    {
+                        if(secondsForDamage - currDamageTimer > 0 && secondsForDamage - currDamageTimer < 1.0f)
+                        {
+                            if (animator != null && animator.gameObject.activeSelf)
+                            {
+                                ShootAnimationPlay();
+                                animator.SetFloat("attack", 1.0f);
+                            }
+                        }
+                    }
+
                 }
                 casting = true;
             }
             else
             {
+                if (animator != null && animator.gameObject.activeSelf)
+                {
+                    animator.SetFloat("attack", 0.0f);
+                }
                 currDamageTimer = 0.0f;
                 casting = false;
             }
@@ -174,9 +201,9 @@ public class EnemyController : Target
 
     void PlaySound()
     {
-        if(!groan.isPlaying)
+        if(!audioSource.isPlaying)
         {
-            groan.Play();
+            audioSource.Play();
         }
     }
 
@@ -189,15 +216,23 @@ public class EnemyController : Target
 
     void OnDrawGizmosSelected()
     {
-        Gizmos.color = Color.red;
+        Gizmos.color = Color.yellow;
         Gizmos.DrawWireSphere(transform.position, aggroRadius);
+
+        Gizmos.color = Color.red;
+        Gizmos.DrawWireSphere(transform.position, damageRange);
         if(target != null)
             Gizmos.DrawLine(transform.position, target.transform.position);
     }
 
-    public void ShootAnimationPlay()
+    public virtual void ShootAnimationPlay()
     {
 
+    }
+
+    public float GetDifficultyScore()
+    {
+        return difficultyScore;
     }
 
     public override void Process(RaycastHit hit)
