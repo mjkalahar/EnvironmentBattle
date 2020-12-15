@@ -13,6 +13,7 @@ public class PlayerManager : MonoBehaviour
     public Player player;
 
     private Gun currentGun;
+    private Gun currentGunPrefab;
 
     public GameObject OFFSCREEN_SPAWN_POINT;
 
@@ -35,9 +36,21 @@ public class PlayerManager : MonoBehaviour
         return currentGun;
     }
 
+    public Gun GetCurrentGunPrefab()
+    {
+        return currentGunPrefab;
+    }
+
     public void Update()
     {
-        if(Input.GetKey(KeyCode.Alpha1))
+        if (GetCurrentGun().CanFire() && Input.GetButton("Fire1") && !GetPlayer().isStunned() && !GetPlayer().isDead())
+        {
+            GetCurrentGun().Shoot();
+        }
+
+        UpdateCurrentGun();
+
+        if (Input.GetKey(KeyCode.Alpha1))
         {
             SwitchWeapons(gun1);
         }
@@ -53,17 +66,28 @@ public class PlayerManager : MonoBehaviour
 
     public void SwitchWeapons(Gun newGun)
     {
-        if (currentGun != null)
+        if (GetCurrentGunPrefab() != newGun)
         {
-            if (currentGun == newGun) return;
-            Destroy(currentGun.gameObject);
+            if (GetCurrentGun() != null)
+            {
+                Destroy(GetCurrentGun().gameObject);
+            }
+            currentGun = SpawnWeapon(newGun);
+            currentGunPrefab = newGun;
         }
-        currentGun = SpawnWeapon(newGun);
     }
 
     public Gun SpawnWeapon(Gun gun)
     {
         return Instantiate(gun, OFFSCREEN_SPAWN_POINT.transform.position, Quaternion.identity);
+    }
+
+    public void UpdateCurrentGun()
+    {
+        Vector3 gripPos = GetPlayer().GetRightHandGripPostion();
+        Vector3 gunPos = new Vector3(gripPos.x, gripPos.y, gripPos.z);
+        GetCurrentGun().transform.rotation = GetPlayer().transform.rotation;
+        GetCurrentGun().transform.position = gunPos;
     }
 
 }

@@ -87,7 +87,7 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 4654529759776938049}
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 3.1519184, y: 0.10435459, z: 61.36}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
   m_LocalScale: {x: 1.5, y: 1.5, z: 1.75}
   m_Children:
   - {fileID: 7226440921420089882}
@@ -160,6 +160,9 @@ MonoBehaviour:
   muzzleFlash: {fileID: 1433102733144576476, guid: 9508e98ab4e349043a55c5f7edd296ef, type: 3}
   damage: 5.3
   timePerShot: 0.2
-  xOffset: 0.01
+  xOffset: 0
   yOffset: 0
-  zOffset: 0.1
+  zOffset: 0
+  xRotation: 0
+  yRotation: 0
+  zRotation: 0

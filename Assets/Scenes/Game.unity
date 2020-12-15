@@ -2634,8 +2634,8 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   player: {fileID: 128731080}
   OFFSCREEN_SPAWN_POINT: {fileID: 58615713}
-  gun1: {fileID: 3008518312593201528, guid: 005f2f714fd669d4891b933a62fd4e08, type: 3}
-  gun2: {fileID: -1669955592620920345, guid: 65eca950d9a64d649ac9b9124200bab1, type: 3}
+  gun1: {fileID: 6140088419936920782, guid: b76c7982836cf824d88a28dc0bf330c9, type: 3}
+  gun2: {fileID: 4033840199736182066, guid: eb48438ef9b45cd4bb5b9755ac03c038, type: 3}
   gun3: {fileID: 6667874638422302455, guid: 75aaec0901162ff478117717ebaa6e24, type: 3}
 --- !u!4 &1623276766
 Transform:
