@@ -473,12 +473,14 @@ MonoBehaviour:
 
     3 - Sniper
 
-    Shift - Sprint
+    Left Click - Fire
+
+    Shift
+    - Sprint
 
     W - Forward
 
-    A
-    - Left
+    A - Left
 
     S - Backward
 
