@@ -724,6 +724,10 @@ PrefabInstance:
   m_Modification:
     m_TransformParent: {fileID: 0}
     m_Modifications:
+    - target: {fileID: 1391925033479002894, guid: 42d6dbd36f608914eae62e5fe18bf5d7, type: 3}
+      propertyPath: effectsManager
+      value: 
+      objectReference: {fileID: 8350073260937472276, guid: 07bc1faf37f4e8f47b1e7a4f3154483f, type: 3}
     - target: {fileID: 2050842172587177936, guid: 42d6dbd36f608914eae62e5fe18bf5d7, type: 3}
       propertyPath: m_Name
       value: MediumMechStriker
@@ -786,34 +790,6 @@ PrefabInstance:
       objectReference: {fileID: 284789713}
     m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 42d6dbd36f608914eae62e5fe18bf5d7, type: 3}
---- !u!1 &2050842172368468158 stripped
-GameObject:
-  m_CorrespondingSourceObject: {fileID: 2050842172587177936, guid: 42d6dbd36f608914eae62e5fe18bf5d7, type: 3}
-  m_PrefabInstance: {fileID: 2050842172368468157}
-  m_PrefabAsset: {fileID: 0}
---- !u!1 &2050842172368468159 stripped
-GameObject:
-  m_CorrespondingSourceObject: {fileID: 2050842172587177938, guid: 42d6dbd36f608914eae62e5fe18bf5d7, type: 3}
-  m_PrefabInstance: {fileID: 2050842172368468157}
-  m_PrefabAsset: {fileID: 0}
---- !u!114 &2050842172368468160
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 2050842172368468159}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: fa525a79048d19e4e84cd1c2c482a264, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  target: {fileID: 2050842172368468158}
-  effectsManager: {fileID: 284789713}
-  hitEffect: {fileID: 8439287261159391302, guid: 663e89b2b38259242ba629bacf1e44d5, type: 3}
-  effectDuration: 0.1
-  hitSound: {fileID: 8300000, guid: 9bc9f5969e33b0e48b60052374de9f5b, type: 3}
-  health: 50
 --- !u!1001 &3192008507522430424
 PrefabInstance:
   m_ObjectHideFlags: 0

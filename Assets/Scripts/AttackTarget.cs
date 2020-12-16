@@ -8,9 +8,14 @@ public class AttackTarget : MonoBehaviour
     private float nextTimeToAttack;
     public bool attacking = false;
 
+    private ScoreTracker scoreTrackerScript;
+    private GameObject hud;
+
     void Start()
     {
         nextTimeToAttack = 0.0f;
+        hud = GameObject.FindWithTag("HUD");
+        scoreTrackerScript = hud.GetComponent<ScoreTracker>();
     }
 
     void Update()
@@ -24,10 +29,20 @@ public class AttackTarget : MonoBehaviour
 
     public void TakeDamage()
     {
-        health = health - 10;
-        if( health <= 0)
+        if (gameObject.tag == "Player")
         {
-            Destroy(gameObject);
+            health = health - 10;
+            scoreTrackerScript.DecHealth();
+        }
+        else
+        {
+            health = health - 10;
+            if (health <= 0)
+            {
+                Destroy(gameObject);
+                scoreTrackerScript.DecTreesLeft();
+                scoreTrackerScript.IncScore(-1);
+            }
         }
         nextTimeToAttack = Time.time + 1f;
     }

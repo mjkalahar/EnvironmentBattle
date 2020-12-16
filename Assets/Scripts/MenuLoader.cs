@@ -10,19 +10,13 @@ public static class MenuLoader
         switch (name)
         {
             case MenuName.Main:
-                SceneManager.LoadScene("MenuScene");
+                SceneManager.LoadScene("MainMenu");
                 break;
-            case MenuName.Controls:
-                SceneManager.LoadScene("ControlsScene");
+            case MenuName.Help:
+                SceneManager.LoadScene("HelpMenu");
                 break;
-            case MenuName.Instructions:
-                SceneManager.LoadScene("InstructionsScene");
-                break;
-            case MenuName.Game:
-                SceneManager.LoadScene("Game");
-                break;
-            case MenuName.Sources:
-                SceneManager.LoadScene("SourcesScene");
+            case MenuName.Play:
+                SceneManager.LoadScene("Terrain");
                 break;
         }
     }

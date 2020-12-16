@@ -1,12 +1,7 @@
-﻿using System.Collections;
-using System.Collections.Generic;
-using UnityEngine;
-
-public enum MenuName
+﻿public enum MenuName
 {
-    Game,
     Main,
-    Controls,
-    Instructions,
-    Sources
+    Help,
+    Play
 }
+

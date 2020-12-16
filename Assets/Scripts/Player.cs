@@ -10,6 +10,8 @@ public class Player : MonoBehaviour
 
     public bool lockCursor;
 
+    public GameObject pauseMenu;
+
     private CharacterController characterController;
     private Animator animator;
 
@@ -38,6 +40,10 @@ public class Player : MonoBehaviour
     // Update is called once per frame
     private void Update()
     {
+        if (Input.GetKeyDown(KeyCode.Escape))
+        {
+            Time.timeScale = 0;
+        }
         ProcessInput();
 
         PerformBlendTreeAnimation();

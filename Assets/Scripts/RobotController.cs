@@ -6,6 +6,7 @@ using UnityEngine.AI;
 public class RobotController : MonoBehaviour
 {
     public float lookRadius = 8f;
+    public bool isHit = false;
 
     Transform target;
     NavMeshAgent agent;
@@ -21,7 +22,13 @@ public class RobotController : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
-        target = FindClosestTree().transform;
+        if (!isHit)
+        {
+            target = FindClosestTree().transform;
+        } else
+        {
+            target = PlayerManager.Instance.player.transform;
+        }
         AttackTarget attackTarget = target.GetComponent<AttackTarget>();
         float distance = Vector3.Distance(target.position, transform.position);
 
@@ -82,5 +89,12 @@ public class RobotController : MonoBehaviour
         animator.SetBool("attack", true);
         AttackTarget attackTarget = target.GetComponent<AttackTarget>();
         attackTarget.setAttack(true);
+    }
+
+    public void IsHit(bool hitState)
+    {
+        isHit = hitState;
+        AttackTarget attackTarget = target.GetComponent<AttackTarget>();
+        attackTarget.setAttack(false);
     }
 }
