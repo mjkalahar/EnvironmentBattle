@@ -3,246 +3,67 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.AI;
 
-public class EnemyController : Target
+public class EnemyController : MonoBehaviour
 {
-    public float aggroRadius = 8f;
 
-    public float difficultyScore = 10;
+    public float lookRadius = 8f;
 
-    public int damage = 10;
-
-    public float secondsForDamage = 2;
-
-    public float damageRange = 10f;
-
-    bool casting = false;
-
-    float currDamageTimer = 0.0f;
-
-    Resource currResourceTarget;
-    Character previousTarget;
-    Character target;
-    protected NavMeshAgent agent;
-    protected AudioSource audioSource;
+    Transform target;
+    NavMeshAgent agent;
+    //AudioSource groan;
     Animator animator;
-
-    GameObject attackBar;
-    GameObject attackForeground;
-    RectTransform rectTransformAttack;
-
-    public void SetupAttackBar()
-    {
-        attackBar = transform.Find("StatusBars/AttackBar").gameObject;
-        attackForeground = GetAttackBar().transform.Find("Foreground").gameObject;
-        rectTransformAttack = attackForeground.GetComponent<RectTransform>();
-    }
-
-    public float GetAttackPercent()
-    {
-        return (float)currDamageTimer / (float)secondsForDamage * 100;
-    }
-
-
-    public void UpdateAttackBar()
-    {
-        rectTransformAttack.sizeDelta = new Vector2(GetAttackPercent() * 2, rectTransformAttack.sizeDelta.y);
-        GetAttackBar().transform.LookAt(PlayerManager.Instance.GetPlayer().GetPlayerCamera().transform);
-    }
-
-    public GameObject GetAttackBar()
-    {
-        return attackBar;
-    }
-
+    // Start is called before the first frame update
     void Start()
     {
-        SetupHealthBar();
-        SetupAttackBar();
+        target = PlayerManager.Instance.player.transform;
         agent = GetComponent<NavMeshAgent>();
-        audioSource = GetComponent<AudioSource>();
-        animator = GetComponent<Animator>();       
-        transform.rotation = Random.rotation;
-        hpMax = hp;
-    }
-
-    bool ChangeTarget()
-    {
-        Player player = PlayerManager.Instance.GetPlayer();
-        float playerDistance = Vector3.Distance(player.transform.position, transform.position);
-
-        //If play is within distance, they are the target
-        if (playerDistance <= aggroRadius)
-        {
-            previousTarget = target;
-            target = player;
-        }
-        //player is out of range, go to old resource target, if dead, pick a new one
-        else
-        {
-            //we need a new resource target
-            if (currResourceTarget == null || currResourceTarget.isDead())
-            {
-                Resource resource = GameManager.Instance.GetRandomAliveResource();
-                if (resource != null)
-                {
-                    currResourceTarget = resource;
-                }
-            }
-
-            //set our target as resource target
-            previousTarget = target;
-            target = currResourceTarget;
-        }
-
-        return previousTarget != target;
+        //groan = GetComponent<AudioSource>();
+        animator = GetComponent<Animator>();
     }
 
     // Update is called once per frame
-    public override void Update()
+    void Update()
     {
-        //Not cc'd
-        if (!isStunned() && !isDead())
+        float distance = Vector3.Distance(target.position, transform.position);
+
+        if(distance <= lookRadius)
         {
-            //Update target
-            bool targetChange = ChangeTarget();
-
-            //If we changed target, we aren't casting
-            if (targetChange)
-            {
-                currDamageTimer = 0.0f;
-                casting = false;
-            }
-
-            FaceTarget();
-
-            //Distance to target
-            float targetDistance = Vector3.Distance(target.transform.position, transform.position);
-
-            //Movement
-            if (agent != null)
-            {
-                if (targetDistance <= agent.stoppingDistance)
-                {
-                    agent.isStopped = true;
-                    agent.ResetPath();
-                    if (animator != null && gameObject.activeSelf)
-                    {
-                        animator.SetFloat("forward", 0.0f);
-                    }
-                }
-                else
-                {
-                    if (animator != null && animator.gameObject.activeSelf)
-                    {
-                        animator.SetFloat("forward", 1.0f);
-                    }
-                    agent.SetDestination(target.transform.position);
-                }
-            }
-            else
-            {
-                Debug.Log("Null nav mesh agent");
-            }
-
-            //Casting
-            if(targetDistance <= damageRange)
-            {
-                if (casting == true)
-                {
-                    currDamageTimer += Time.deltaTime;
-                    if (currDamageTimer >= secondsForDamage)
-                    {
-                        if (animator != null && animator.gameObject.activeSelf)
-                        {
-                            animator.SetFloat("attack", 0.0f);
-                        }
-                        target.TakeDamage(damage, this.gameObject);
-                        currDamageTimer = 0.0f;
-                    }
-                    else
-                    {
-                        if(secondsForDamage - currDamageTimer > 0 && secondsForDamage - currDamageTimer < 1.0f)
-                        {
-                            if (animator != null && animator.gameObject.activeSelf)
-                            {
-                                ShootAnimationPlay();
-                                animator.SetFloat("attack", 1.0f);
-                            }
-                        }
-                    }
-
-                }
-                casting = true;
-            }
-            else
-            {
-                if (animator != null && animator.gameObject.activeSelf)
-                {
-                    animator.SetFloat("attack", 0.0f);
-                }
-                currDamageTimer = 0.0f;
-                casting = false;
-            }
+            agent.SetDestination(target.position);
+            animator.SetFloat("forward", 1.0f);
+            //PlaySound();
         }
         else
         {
-            if (animator != null && gameObject.activeSelf)
-            {
-                animator.SetFloat("forward", 0.0f);
-            }
-            agent.isStopped = true;
-            agent.ResetPath();
+            agent.SetDestination(transform.position);
+            animator.SetFloat("forward", 0.0f);
+            //groan.Stop();
         }
 
-        //Update health bars
-        UpdateHealthBar();
-        UpdateAttackBar();
+        if(distance <= agent.stoppingDistance)
+        {
+            animator.SetFloat("forward", 0.0f);
+            FaceTarget();
+        }
     }
 
+    /*
     void PlaySound()
     {
-        if(!audioSource.isPlaying)
+        if (!groan.isPlaying)
         {
-            audioSource.Play();
+            groan.Play();
         }
-    }
-
+    }*/
     void FaceTarget()
     {
-        Vector3 direction = (target.transform.position - transform.position).normalized;
+        Vector3 direction = (target.position - transform.position).normalized;
         Quaternion lookRotation = Quaternion.LookRotation(new Vector3(direction.x, 0, direction.z));
         transform.rotation = Quaternion.Slerp(transform.rotation, lookRotation, Time.deltaTime * 5f);
     }
 
-    void OnDrawGizmosSelected()
+    void onDrawGizmosSelected()
     {
-        Gizmos.color = Color.yellow;
-        Gizmos.DrawWireSphere(transform.position, aggroRadius);
-
         Gizmos.color = Color.red;
-        Gizmos.DrawWireSphere(transform.position, damageRange);
-        if(target != null)
-            Gizmos.DrawLine(transform.position, target.transform.position);
-    }
-
-    public virtual void ShootAnimationPlay()
-    {
-
-    }
-
-    public float GetDifficultyScore()
-    {
-        return difficultyScore;
-    }
-
-    public override void Process(RaycastHit hit)
-    {
-        TakeDamage(PlayerManager.Instance.GetCurrentGun().GetDamage(), PlayerManager.Instance.GetPlayer().gameObject);
-        effectScript.Play(hit, hitSound, hitEffect, effectDuration);
-    }
-
-    public override void Die()
-    {
-        Destroy(gameObject);
+        Gizmos.DrawWireSphere(transform.position, lookRadius);
     }
 }

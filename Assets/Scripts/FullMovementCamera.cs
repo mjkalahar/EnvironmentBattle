@@ -6,8 +6,6 @@ public class FullMovementCamera : MonoBehaviour
     
     public float zoomSensitivity = 0.5f;
 
-    public float shoulderOffset = 10;
-
     public const float Y_ANGLE_MIN = -50.0f; // max look down
     public const float Y_ANGLE_MAX = 50.0f;  //max look up
 
@@ -43,9 +41,9 @@ public class FullMovementCamera : MonoBehaviour
 
     private void LateUpdate()
     {
-        Vector3 direction = Vector3.zero;
+        Vector3 direction = Vector3.zero;  // needed for Quaternion multiplication      
         Quaternion rotation = Quaternion.Euler(invertedY, currentX, 0);
-            
+
         if (Input.GetKey(KeyCode.R))
         {
             // Input.mouseScrollDelta.y e.g., -2, -1, 0, 1, 2
@@ -75,6 +73,7 @@ public class FullMovementCamera : MonoBehaviour
         
         //Vector3 startPosition = transform.position;
         Vector3 endPosition   = lookAt.position + rotation * direction;
+        
         transform.position = endPosition;
         //camTransform.position = Vector3.Lerp(startPosition,endPosition,20*Time.deltaTime);
 

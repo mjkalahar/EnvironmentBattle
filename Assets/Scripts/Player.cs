@@ -2,8 +2,9 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-public class Player : Character
+public class Player : MonoBehaviour
 {
+
     public float baseSpeed;
     public float runningAmplifier;
 
@@ -16,28 +17,17 @@ public class Player : Character
     private float gravity = -9.81f;
 
     private PlayerMovementInfo playerMovement;
-
-    Camera playerCamera;
-
-    RectTransform hudRectTransform;
-    RectTransform hudRectTransformReload;
-
-    private bool sprinting = false;
-
-
+    // Start is called before the first frame update
     void Start()
     {
-        playerCamera = transform.Find("Camera").GetComponent<Camera>();
-        SetupHUDBar();
-
         animator = GetComponent<Animator>();
         characterController = GetComponent<CharacterController>();
-        
+
         playerMovement = new PlayerMovementInfo();
         playerMovement.baseSpeed = baseSpeed;
         playerMovement.runningAmplifier = runningAmplifier;
 
-        if(lockCursor)
+        if (lockCursor)
         {
             Cursor.lockState = CursorLockMode.Locked;
         }
@@ -45,116 +35,46 @@ public class Player : Character
         airTime = 0;
     }
 
-    public Vector3 GetRightHandGripPostion()
+    // Update is called once per frame
+    private void Update()
     {
-        var thumb = gameObject.transform.Find("mixamorig:Hips/mixamorig:Spine/mixamorig:Spine1/mixamorig:Spine2/" +
-            "mixamorig:RightShoulder/mixamorig:RightArm/mixamorig:RightForeArm/mixamorig:RightHand/mixamorig:RightHandThumb1/mixamorig:RightHandThumb2");
-        return thumb.transform.position;
+        ProcessInput();
+
+        PerformBlendTreeAnimation();
+
+        CalculateDirectionAndDistance();
+        PerformPhysicalMovement();
+
+        RotatePlayerWithCamera();
     }
 
-    public Camera GetPlayerCamera()
+    public void ProcessInput()
     {
-        return playerCamera;
-    }
+        playerMovement.leftAndRight = Input.GetAxis("Horizontal");
+        playerMovement.forwardAndBackward = Input.GetAxis("Vertical");
 
-    public void SetupHUDBar()
-    {
-        HUD hud = GameManager.GetHUD();
-        var foreground = hud.transform.Find("Canvas").transform.Find("StatusBars/HealthBar").transform.Find("Foreground");
-        hudRectTransform = foreground.GetComponent<RectTransform>();
-        var foregroundReload = hud.transform.Find("Canvas").transform.Find("StatusBars/AttackBar").transform.Find("Foreground");
-        hudRectTransformReload = foregroundReload.GetComponent<RectTransform>();
-    }
+        playerMovement.movingForwards = playerMovement.forwardAndBackward > 0.0f;
+        playerMovement.movingBackwards = playerMovement.forwardAndBackward < 0.0f;
 
-    public void UpdateHUDBar()
-    {
-        hudRectTransform.sizeDelta = new Vector2(GetHPPercent() * 2, hudRectTransform.sizeDelta.y);
-        hudRectTransformReload.sizeDelta = new Vector2(PlayerManager.Instance.GetCurrentGun().GetCooldownTime() * 2, hudRectTransformReload.sizeDelta.y);
-    }
+       //bool running = (playerMovement.movingForwards && Input.GetKey(KeyCode.LeftShift)) || (!playerMovement.movingBackwards && (playerMovement.leftAndRight > 0.0f || playerMovement.leftAndRight < 0.0f));
 
-    public bool isSprinting()
-    {
-        return sprinting;
-    }
+        bool running = Input.GetKey(KeyCode.LeftShift);
 
-    public void Sprint()
-    {
-        sprinting = true;
-    }
-
-    public void StopSprint()
-    {
-        sprinting = false;
-    }
-
-    public override void Update()
-    {
-        if (!isStunned() && !isDead())
+        if (running)
         {
-            playerMovement.leftAndRight = Input.GetAxis("Horizontal");
-            playerMovement.forwardAndBackward = Input.GetAxis("Vertical");
-
-            playerMovement.movingForwards = playerMovement.forwardAndBackward > 0.0f;
-            playerMovement.movingBackwards = playerMovement.forwardAndBackward < 0.0f;
-
-            bool running = isSprinting() && (
-                    playerMovement.movingForwards
-                 || (!playerMovement.movingBackwards && (playerMovement.leftAndRight > 0.0f || playerMovement.leftAndRight < 0.0f))
-            );
-
-            if (running)
-            {
-                playerMovement.speed = playerMovement.baseSpeed * playerMovement.runningAmplifier;
-                animator.SetFloat("sprint", 1.0f);
-
-            }
-            else
-            {
-                playerMovement.speed = playerMovement.baseSpeed;
-                playerMovement.forwardAndBackward = playerMovement.forwardAndBackward / 2.0f;
-                animator.SetFloat("sprint", 0.0f);
-            }
-
-          
-
-            Vector3 moveDirectionForward = transform.forward * playerMovement.forwardAndBackward;
-            Vector3 moveDirectionSide = transform.right * playerMovement.leftAndRight;
-
-            playerMovement.direction = moveDirectionForward + moveDirectionSide;
-            playerMovement.normalizedDirection = playerMovement.direction.normalized;
-
-            playerMovement.distance = playerMovement.normalizedDirection * playerMovement.speed * Time.deltaTime;
-
-            if (characterController.isGrounded)
-            {
-                airTime = 0;
-            }
-            else
-            {
-                airTime += Time.deltaTime;
-                Vector3 direction = playerMovement.normalizedDirection;
-
-                direction.y += 0.5f * gravity * airTime;
-
-                playerMovement.normalizedDirection = direction;
-                playerMovement.distance = playerMovement.normalizedDirection * airTime;
-            }
-
-            characterController.Move(playerMovement.distance);
+            playerMovement.speed = playerMovement.baseSpeed * playerMovement.runningAmplifier;
         }
         else
         {
-            playerMovement.leftAndRight = 0.0f;
-            playerMovement.forwardAndBackward = 0.0f;
-            playerMovement.movingForwards = false;
-            playerMovement.movingBackwards = false;
-            playerMovement.speed = 0;
-            playerMovement.direction = Vector3.zero;
-            playerMovement.normalizedDirection = Vector3.zero;
-            playerMovement.distance = Vector3.zero;
+            playerMovement.speed = playerMovement.baseSpeed;
 
+            playerMovement.forwardAndBackward = playerMovement.forwardAndBackward / 2.0f;
+            playerMovement.leftAndRight = playerMovement.leftAndRight / 2.0f; 
         }
+    }
 
+    public void PerformBlendTreeAnimation()
+    {
         float leftAndRight = playerMovement.leftAndRight;
 
         if (playerMovement.movingBackwards)
@@ -164,10 +84,47 @@ public class Player : Character
 
         animator.SetFloat("leftAndRight", leftAndRight);
         animator.SetFloat("forwardAndBackward", playerMovement.forwardAndBackward);
+    }
 
+    public void CalculateDirectionAndDistance()
+    {
+        Vector3 moveDirectionForward = transform.forward * playerMovement.forwardAndBackward;
+        Vector3 moveDirectionSide = transform.right * playerMovement.leftAndRight;
 
+        playerMovement.direction = moveDirectionForward + moveDirectionSide;
+        playerMovement.normalizedDirection = playerMovement.direction.normalized;
+
+        playerMovement.distance = playerMovement.normalizedDirection * playerMovement.speed * Time.deltaTime;
+
+        GroundPlayer();
+    }
+
+    public void PerformPhysicalMovement()
+    {
+        characterController.Move(playerMovement.distance);
+    }
+
+    public void GroundPlayer()
+    {
+        if (characterController.isGrounded)
+        {
+            airTime = 0;
+        }
+        else
+        {
+            airTime += Time.deltaTime;
+            Vector3 direction = playerMovement.normalizedDirection;
+
+            direction.y += 0.5f * gravity * airTime;
+
+            playerMovement.normalizedDirection = direction;
+            playerMovement.distance = playerMovement.normalizedDirection * airTime;
+        }
+    }
+
+    public void RotatePlayerWithCamera()
+    {
         Vector3 rotation;
-
         if (Input.GetKey(KeyCode.T))
         {
             return;
@@ -177,10 +134,7 @@ public class Player : Character
             rotation = Camera.main.transform.eulerAngles;
             rotation.x = 0;
             rotation.z = 0;
-
             transform.eulerAngles = rotation;
         }
-
-        UpdateHUDBar();
     }
 }

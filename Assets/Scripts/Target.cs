@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-public class Target : Character
+public class Target : MonoBehaviour
 {
     public GameObject target;
 
@@ -14,13 +14,11 @@ public class Target : Character
 
     protected Effect effectScript;
 
-    void Awake()
+    private void Awake()
     {
         effectScript = effectsManager.GetComponent<Effect>();
     }
 
-    public virtual void Process(RaycastHit hit)
-    {
-
+    public virtual void Process(RaycastHit hit) { 
     }
 }

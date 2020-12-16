@@ -11,8 +11,8 @@ public class Effect : MonoBehaviour
     void Start()
     {
         effectAudio = gameObject.GetComponent<AudioSource>();
-        //Debug.Log(effectAudio);
         volume = 0.7f;
+
     }
 
     public void Play(RaycastHit hit, AudioClip hitSound, GameObject hitEffect, float effectDuration)
@@ -22,9 +22,6 @@ public class Effect : MonoBehaviour
             particleEffect = Instantiate(hitEffect, hit.point, Quaternion.LookRotation(hit.normal));
             Destroy(particleEffect, effectDuration);
         }
-
-        //Debug.Log(hitSound);
-        //Debug.Log(volume);
 
         effectAudio.PlayOneShot(hitSound, volume);
     }
