@@ -467,7 +467,22 @@ MonoBehaviour:
     m_HorizontalOverflow: 0
     m_VerticalOverflow: 0
     m_LineSpacing: 1
-  m_Text: (Input controls here)
+  m_Text: '1 - Rifle
+
+    2 - SMG
+
+    3 - Sniper
+
+    Shift - Sprint
+
+    W - Forward
+
+    A
+    - Left
+
+    S - Backward
+
+    D - Right'
 --- !u!222 &2004425997
 CanvasRenderer:
   m_ObjectHideFlags: 0
