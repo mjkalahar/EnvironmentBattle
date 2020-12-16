@@ -74,10 +74,11 @@ public class Gun : MonoBehaviour
                 if (target != null)
                 {
                     target.Process(hit);
-                    lastFire = Time.time;
-                    nextTimeToFire = Time.time + timePerShot;
                 }
             }
         }
+
+        lastFire = Time.time;
+        nextTimeToFire = Time.time + timePerShot;
     }
 }
