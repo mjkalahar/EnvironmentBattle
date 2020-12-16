@@ -71,7 +71,6 @@ GameObject:
   - component: {fileID: 4654529759776685845}
   - component: {fileID: 4654529759773780557}
   - component: {fileID: 4654529759774899461}
-  - component: {fileID: -1669955592620920345}
   m_Layer: 0
   m_Name: SciFiGunHeavyBlack
   m_TagString: Untagged
@@ -144,25 +143,3 @@ MeshRenderer:
   m_SortingLayer: 0
   m_SortingOrder: 0
   m_AdditionalVertexStreams: {fileID: 0}
---- !u!114 &-1669955592620920345
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 4654529759776938049}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: b0dbd5c7f1343ca4aaac1141646364dd, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  range: 100
-  muzzleFlash: {fileID: 1433102733144576476, guid: 9508e98ab4e349043a55c5f7edd296ef, type: 3}
-  damage: 5.3
-  timePerShot: 0.2
-  xOffset: 0
-  yOffset: 0
-  zOffset: 0
-  xRotation: 0
-  yRotation: 0
-  zRotation: 0

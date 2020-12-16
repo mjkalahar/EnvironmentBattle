@@ -71,7 +71,6 @@ GameObject:
   - component: {fileID: 3008518312593649841}
   - component: {fileID: 3008518312592310819}
   - component: {fileID: 3008518312591349397}
-  - component: {fileID: 3008518312593201528}
   m_Layer: 2
   m_Name: SciFiGunLightBlack
   m_TagString: Untagged
@@ -144,25 +143,3 @@ MeshRenderer:
   m_SortingLayer: 0
   m_SortingOrder: 0
   m_AdditionalVertexStreams: {fileID: 0}
---- !u!114 &3008518312593201528
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 3008518312593314983}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: b0dbd5c7f1343ca4aaac1141646364dd, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  range: 100
-  muzzleFlash: {fileID: 1433102733144576476, guid: 9508e98ab4e349043a55c5f7edd296ef, type: 3}
-  damage: 5.3
-  timePerShot: 0.2
-  xOffset: 0
-  yOffset: 0
-  zOffset: 0
-  xRotation: 0
-  yRotation: 0
-  zRotation: 0

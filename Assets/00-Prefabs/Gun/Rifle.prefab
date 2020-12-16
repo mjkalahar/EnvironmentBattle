@@ -44,10 +44,10 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: b0dbd5c7f1343ca4aaac1141646364dd, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  range: 100
+  range: 60
   muzzleFlash: {fileID: 1433102733144576476, guid: 9508e98ab4e349043a55c5f7edd296ef, type: 3}
-  damage: 5.3
-  timePerShot: 0.2
+  damage: 20
+  timePerShot: 0.8
 --- !u!1001 &6845594155360239760
 PrefabInstance:
   m_ObjectHideFlags: 0
