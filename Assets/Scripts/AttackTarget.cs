@@ -10,6 +10,7 @@ public class AttackTarget : MonoBehaviour
 
     private ScoreTracker scoreTrackerScript;
     private GameObject hud;
+    public GameObject gameOver;
 
     void Start()
     {
@@ -33,6 +34,11 @@ public class AttackTarget : MonoBehaviour
         {
             health = health - 10;
             scoreTrackerScript.DecHealth();
+            if (scoreTrackerScript.getHealth() <= 0)
+            {
+                //Instantiate(gameOver);
+                Time.timeScale = 0;
+            }
         }
         else
         {

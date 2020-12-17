@@ -14,6 +14,7 @@ public class Pause : MonoBehaviour
     {
         Time.timeScale = 1;
         Destroy(gameObject);
+        Cursor.lockState = CursorLockMode.Locked;
     }
     public void HandleRestartButtonOnClickEvent()
     {

@@ -86,4 +86,9 @@ public class ScoreTracker : MonoBehaviour
         ShowInfo();
     }
 
+    public int getHealth()
+    {
+        return health;
+    }
+
 }

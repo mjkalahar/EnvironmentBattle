@@ -42,8 +42,11 @@ public class Player : MonoBehaviour
     {
         if (Input.GetKeyDown(KeyCode.Escape))
         {
+            Instantiate(pauseMenu);
+            Cursor.lockState = CursorLockMode.None;
             Time.timeScale = 0;
         }
+        
         ProcessInput();
 
         PerformBlendTreeAnimation();
